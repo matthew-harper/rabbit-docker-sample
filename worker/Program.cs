@@ -7,11 +7,6 @@ using System.Runtime.Serialization.Json;
 
 namespace worker
 {
-    public class todo
-    {
-        public string[] name;
-    }
-
     class Program
     {
         private static readonly HttpClient client = new HttpClient();
@@ -25,8 +20,8 @@ namespace worker
                 new MediaTypeWithQualityHeaderValue("application/json"));
             //client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
 
-            var stringTask = client.GetStringAsync("http://127.0.0.1:8080/api/Values");
-            var msg = await stringTask;
+            //var stringTask = client.GetStringAsync("http://127.0.0.1:8080/api/Values");
+            //var msg = await stringTask;
 
             var streamTask = client.GetStreamAsync("http://127.0.0.1:8080/api/Values");
             var resp = serializer.ReadObject(await streamTask) as List<string>;

@@ -1,0 +1,26 @@
+version: '3.4'
+
+networks:
+  dockerapi-dev:
+    driver: bridge 
+
+services:
+  publisher_api:
+    image: publisher_api:latest
+    build:
+      context: ./publisher_api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"     
+    networks:
+      - dockerapi-dev
+
+  worker:
+    image: worker:latest
+    depends_on:
+      - "publisher_api"
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    networks:
+      - dockerapi-dev 

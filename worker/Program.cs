@@ -23,7 +23,7 @@ namespace worker
             //var stringTask = client.GetStringAsync("http://127.0.0.1:8080/api/Values");
             //var msg = await stringTask;
 
-            var streamTask = client.GetStreamAsync("http://127.0.0.1:8080/api/Values");
+            var streamTask = client.GetStreamAsync("http://publisher_api:80/api/Values");
             var resp = serializer.ReadObject(await streamTask) as List<string>;
 
             foreach (var t in resp)

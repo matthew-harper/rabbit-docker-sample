@@ -14,9 +14,9 @@ namespace publisher_api.Services
     {
         public bool Enqueue(string messageString)
         {
-            var factory = new ConnectionFactory() { HostName = "rabbit" };
-            factory.UserName = "test";
-            factory.Password = "test";
+            var factory = new ConnectionFactory() { HostName = "rabbitmq:5672" };
+            factory.UserName = "guest";
+            factory.Password = "guest";
             using(var connection = factory.CreateConnection())
             using(var channel = connection.CreateModel())
             {

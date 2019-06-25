@@ -18,21 +18,26 @@ services:
     networks:
       - dockerapi-dev  
   
-  rabbitmq:
-    image: "rabbitmq:3-management"
-    hostname: "rabbit"
-    ports:
-      - "15672:15672"
-      - "5672:5672"
+  rabbitmq: # login guest:guest
+    image: rabbitmq:3-management
+    hostname: "rabbitmq"
     labels:
       NAME: "rabbitmq"
-    volumes:
-      - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+    build:
+      context: ./rabbitmq
+      dockerfile: Dockerfile
+    ports:
+    - "4369:4369"
+    - "5671:5671"
+    - "5672:5672"
+    - "25672:25672"
+    - "15671:15671"
+    - "15672:15672"
     healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
-      interval: 5s
-      timeout: 15s
-      retries: 1
+        test: ["CMD", "curl", "-f", "http://localhost:15672"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
     networks:
       - dockerapi-dev
 

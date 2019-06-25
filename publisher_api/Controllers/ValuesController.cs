@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using publisher_api.Services;
 
 namespace publisher_api.Controllers
 {
@@ -10,11 +11,18 @@ namespace publisher_api.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private readonly IMessageService _messageService;
+        public ValuesController(IMessageService messageService)
+        {
+            _messageService = messageService;
+        }
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
-            return new string[] { "value1", "value2" };
+            _messageService.Enqueue("q-test");
+            // post to that messageService
+            return new string[] { "q-test" };
         }
 
         // GET api/values/5

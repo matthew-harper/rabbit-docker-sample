@@ -18,10 +18,6 @@ namespace worker
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
-            //client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
-
-            //var stringTask = client.GetStringAsync("http://127.0.0.1:8080/api/Values");
-            //var msg = await stringTask;
 
             var streamTask = client.GetStreamAsync("http://publisher_api:80/api/Values");
             var resp = serializer.ReadObject(await streamTask) as List<string>;
@@ -33,7 +29,10 @@ namespace worker
 
         static void Main(string[] args)
         {
-            for(int i = 0; i < 500; i++)
+            Console.WriteLine("Sleeping!");
+            Task.Delay(15000).Wait();
+            Console.WriteLine("Done Sleeping!");
+            for(int i = 0; i < 5; i++)
             { 
                 Console.WriteLine("Hello World!");
                 GetFromQueue().Wait();

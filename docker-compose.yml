@@ -7,6 +7,7 @@ networks:
 services:
   publisher_api:
     image: publisher_api:latest
+    restart: on-failure
     depends_on:
       - "rabbitmq"
     build:
@@ -27,13 +28,19 @@ services:
       NAME: "rabbitmq"
     volumes:
       - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
     networks:
       - dockerapi-dev
 
   worker:
     image: worker:latest
+    restart: on-failure
     depends_on:
-      - "publisher_api"
+      - "rabbitmq"
     build:
       context: ./worker
       dockerfile: Dockerfile

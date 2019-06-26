@@ -14,12 +14,14 @@ namespace publisher_api.Services
     {
         public bool Enqueue(string messageString)
         {
-            var factory = new ConnectionFactory() { HostName = "rabbitmq:5672" };
+            Console.WriteLine("about to connect to rabbit");
+            var factory = new ConnectionFactory() { HostName = "rabbitmq", Port = 5672 };
             factory.UserName = "guest";
             factory.Password = "guest";
             using(var connection = factory.CreateConnection())
             using(var channel = connection.CreateModel())
             {
+                Console.WriteLine("connected?");
                 channel.QueueDeclare(queue: "hello",
                                     durable: false,
                                     exclusive: false,

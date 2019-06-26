@@ -27,21 +27,21 @@ namespace worker
             var result = await client.PostAsync("http://publisher_api:80/api/Values", content);
 
             string resultContent = await result.Content.ReadAsStringAsync();
-            Console.WriteLine(resultContent);
         }
 
         static void Main(string[] args)
         {
             string[] testStrings = new string[] {"one", "two", "three", "four", "five"};
-            Console.WriteLine("Sleeping!");
+           
+            Console.WriteLine("Sleeping to wait for Rabbit");
             Task.Delay(10000).Wait();
-            Console.WriteLine("Done Sleeping!");
             Console.WriteLine("Posting messages to webApi");
             for(int i = 0; i < 5; i++)
             { 
                 PostToWebApi(testStrings[i]).Wait();
             }
 
+            Task.Delay(1000).Wait();
             Console.WriteLine("Consuming Queue Now");
             
             ConnectionFactory factory = new ConnectionFactory() { HostName = "rabbitmq", Port = 5672 };
@@ -65,7 +65,6 @@ namespace worker
             channel.BasicConsume(queue: "hello",
                                  autoAck: true,
                                  consumer: consumer);
-
         }
     }
 }

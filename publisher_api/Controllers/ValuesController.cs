@@ -20,8 +20,6 @@ namespace publisher_api.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
-            _messageService.Enqueue("q-test");
-            // post to that messageService
             return new string[] { "q-test" };
         }
 
@@ -34,8 +32,10 @@ namespace publisher_api.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Post([FromForm] string value)
         {
+            Console.WriteLine("received a Post: " + value);
+             _messageService.Enqueue(value);
         }
 
         // PUT api/values/5

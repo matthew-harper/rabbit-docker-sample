@@ -35,7 +35,7 @@ namespace publisher_api.Services
         }
         public bool Enqueue(string messageString)
         {
-            var body = Encoding.UTF8.GetBytes(messageString);
+            var body = Encoding.UTF8.GetBytes("server processed " + messageString);
             _channel.BasicPublish(exchange: "",
                                 routingKey: "hello",
                                 basicProperties: null,

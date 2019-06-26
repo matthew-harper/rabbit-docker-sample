@@ -4,38 +4,25 @@ using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Json;
+using System.Text;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using Newtonsoft.Json;
 
 namespace worker
 {
     class Program
     {
         private static readonly HttpClient client = new HttpClient();
-        
-
-        // private static async Task GetFromQueue()
-        // {
-        //     var serializer = new DataContractJsonSerializer(typeof(List<string>));
-        //     client.DefaultRequestHeaders.Accept.Clear();
-        //     client.DefaultRequestHeaders.Accept.Add(
-        //         new MediaTypeWithQualityHeaderValue("application/json"));
-
-        //     var streamTask = client.GetStreamAsync("http://publisher_api:80/api/Values");
-        //     var resp = serializer.ReadObject(await streamTask) as List<string>;
-
-        //     foreach (var t in resp)
-        //         Console.WriteLine(t);
-
-        // }
 
         public static async Task PostToWebApi(string postData)
-        {           
-            //client.BaseAddress = new Uri("http://publisher_api:80");
-            var content = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("value", postData)
-            });
-            content.Headers.Add("Content-Type", "application/json; charset=utf-8");
+        {
+            var json = JsonConvert.SerializeObject(postData);
+            var content = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
+
             client.DefaultRequestHeaders.Accept.Clear();
+            content.Headers.Remove("Content-Type");
+            content.Headers.Add("Content-Type", "application/json; charset=utf-8");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             var result = await client.PostAsync("http://publisher_api:80/api/Values", content);
 
@@ -49,12 +36,36 @@ namespace worker
             Console.WriteLine("Sleeping!");
             Task.Delay(10000).Wait();
             Console.WriteLine("Done Sleeping!");
+            Console.WriteLine("Posting messages to webApi");
             for(int i = 0; i < 5; i++)
             { 
-                Console.WriteLine("Hello World!");
-                //GetFromQueue().Wait();
                 PostToWebApi(testStrings[i]).Wait();
             }
+
+            Console.WriteLine("Consuming Queue Now");
+            
+            ConnectionFactory factory = new ConnectionFactory() { HostName = "rabbitmq", Port = 5672 };
+            factory.UserName = "guest";
+            factory.Password = "guest";
+            IConnection conn = factory.CreateConnection();
+            IModel channel = conn.CreateModel();
+            channel.QueueDeclare(queue: "hello",
+                                    durable: false,
+                                    exclusive: false,
+                                    autoDelete: false,
+                                    arguments: null);
+
+            var consumer = new EventingBasicConsumer(channel);
+            consumer.Received += (model, ea) =>
+            {
+                var body = ea.Body;
+                var message = Encoding.UTF8.GetString(body);
+                Console.WriteLine(" [x] Received from Rabbit: {0}", message);
+            };
+            channel.BasicConsume(queue: "hello",
+                                 autoAck: true,
+                                 consumer: consumer);
+
         }
     }
 }

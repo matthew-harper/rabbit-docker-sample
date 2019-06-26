@@ -32,7 +32,7 @@ namespace publisher_api.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromForm] string value)
+        public void Post([FromBody] string value)
         {
             Console.WriteLine("received a Post: " + value);
              _messageService.Enqueue(value);

@@ -12,30 +12,35 @@ namespace publisher_api.Services
 
     public class MessageService : IMessageService
     {
-        public bool Enqueue(string messageString)
+        ConnectionFactory _factory;
+        IConnection _conn;
+        IModel _channel;
+        public MessageService()
         {
             Console.WriteLine("about to connect to rabbit");
-            var factory = new ConnectionFactory() { HostName = "rabbitmq", Port = 5672 };
-            factory.UserName = "guest";
-            factory.Password = "guest";
-            using(var connection = factory.CreateConnection())
-            using(var channel = connection.CreateModel())
-            {
-                Console.WriteLine("connected?");
-                channel.QueueDeclare(queue: "hello",
+
+            _factory = new ConnectionFactory() { HostName = "rabbitmq", Port = 5672 };
+            _factory.UserName = "guest";
+            _factory.Password = "guest";
+            _conn = _factory.CreateConnection();
+            _channel = _conn.CreateModel();
+            _channel.QueueDeclare(queue: "hello",
                                     durable: false,
                                     exclusive: false,
                                     autoDelete: false,
                                     arguments: null);
-
-                var body = Encoding.UTF8.GetBytes(messageString);
-
-                channel.BasicPublish(exchange: "",
-                                    routingKey: "hello",
-                                    basicProperties: null,
-                                    body: body);
-                Console.WriteLine(" [x] Sent {0}", messageString);
-            }
+            
+            Console.WriteLine("connected?");
+            
+        }
+        public bool Enqueue(string messageString)
+        {
+            var body = Encoding.UTF8.GetBytes(messageString);
+            _channel.BasicPublish(exchange: "",
+                                routingKey: "hello",
+                                basicProperties: null,
+                                body: body);
+            Console.WriteLine(" [x] Sent {0}", messageString);
             return true;
         }
     }
